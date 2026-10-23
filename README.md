@@ -43,6 +43,15 @@ Pour un usage réel, créer une clé gratuite sur <https://fdc.nal.usda.gov/api-
 VITE_USDA_API_KEY="votre-clé"
 ```
 
+## Publication sur GitHub Pages
+
+Le workflow `.github/workflows/deploy-pages.yml` compile le site et le publie à chaque push sur `main`
+(ou manuellement depuis l'onglet *Actions*). Réglage nécessaire une seule fois :
+**Settings → Pages → Build and deployment → Source : « GitHub Actions »**.
+
+Pour utiliser une vraie clé USDA sur le site publié, l'ajouter en secret du dépôt nommé `VITE_USDA_API_KEY`
+(**Settings → Secrets and variables → Actions**).
+
 ## Organisation du code
 
 ```
