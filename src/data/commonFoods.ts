@@ -82,13 +82,27 @@ export const COMMON_FRENCH_FOODS: CommonFoodItem[] = [
   { name: 'Sandwich jambon beurre', category: 'Plats composés', kcalPer100g: 270, proteinPer100g: 10.5, defaultUnitWeight: 200, defaultUnitName: '1 sandwich (200g)', synonyms: ['sandwich'] }
 ];
 
+const normalize = (text: string) => text.trim().toLowerCase();
+
+const matchesQuery = (item: CommonFoodItem, q: string) =>
+  normalize(item.name).includes(q) ||
+  normalize(item.category).includes(q) ||
+  (item.synonyms ?? []).some(s => normalize(s).includes(q));
+
+/** Suggestions d'autocomplétion. */
 export function searchCommonFoods(query: string): CommonFoodItem[] {
-  if (!query || query.trim() === '') return COMMON_FRENCH_FOODS.slice(0, 10);
-  const q = query.toLowerCase().trim();
-  return COMMON_FRENCH_FOODS.filter(item => {
-    if (item.name.toLowerCase().includes(q)) return true;
-    if (item.category.toLowerCase().includes(q)) return true;
-    if (item.synonyms && item.synonyms.some(s => s.toLowerCase().includes(q))) return true;
-    return false;
-  });
+  const q = normalize(query);
+  if (!q) return COMMON_FRENCH_FOODS.slice(0, 10);
+  return COMMON_FRENCH_FOODS.filter(item => matchesQuery(item, q));
+}
+
+/** Meilleure correspondance pour un texte libre (nom exact, puis inclusion). */
+export function findCommonFood(query: string): CommonFoodItem | undefined {
+  const q = normalize(query);
+  if (!q) return undefined;
+  const isExact = (item: CommonFoodItem) =>
+    normalize(item.name) === q || (item.synonyms ?? []).some(s => normalize(s) === q);
+  const isPartial = (item: CommonFoodItem) =>
+    normalize(item.name).includes(q) || (item.synonyms ?? []).some(s => q.includes(normalize(s)));
+  return COMMON_FRENCH_FOODS.find(isExact) ?? COMMON_FRENCH_FOODS.find(isPartial);
 }

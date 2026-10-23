@@ -1,7 +1,9 @@
+import { ArtificialRoute } from '../types';
+
 export interface NutritionBagProduct {
   name: string;
   brand: string;
-  category: 'enteral' | 'parenteral';
+  category: ArtificialRoute;
   kcalPer100ml: number;
   proteinPer100ml: number; // in grams
   defaultVolumes: number[];
@@ -266,22 +268,26 @@ export const PARENTERAL_PRODUCTS: NutritionBagProduct[] = [
   }
 ];
 
-export function searchNutritionBags(query: string, category?: 'enteral' | 'parenteral'): NutritionBagProduct[] {
-  const list = category === 'enteral' ? ENTERAL_PRODUCTS : category === 'parenteral' ? PARENTERAL_PRODUCTS : [...ENTERAL_PRODUCTS, ...PARENTERAL_PRODUCTS];
-  if (!query || query.trim() === '') return list.slice(0, 8);
-  const q = query.toLowerCase().trim();
-  return list.filter(item => 
-    item.name.toLowerCase().includes(q) || 
-    item.brand.toLowerCase().includes(q) || 
-    item.description.toLowerCase().includes(q)
+const PRODUCTS_BY_ROUTE: Record<ArtificialRoute, NutritionBagProduct[]> = {
+  enteral: ENTERAL_PRODUCTS,
+  parenteral: PARENTERAL_PRODUCTS
+};
+
+export function searchNutritionBags(query: string, route: ArtificialRoute): NutritionBagProduct[] {
+  const list = PRODUCTS_BY_ROUTE[route];
+  const q = query.trim().toLowerCase();
+  if (!q) return list.slice(0, 8);
+  return list.filter(item =>
+    [item.name, item.brand, item.description].some(field => field.toLowerCase().includes(q))
   );
 }
 
-export function findNutritionBag(name: string, category?: 'enteral' | 'parenteral'): NutritionBagProduct | undefined {
-  if (!name) return undefined;
-  const list = category === 'enteral' ? ENTERAL_PRODUCTS : category === 'parenteral' ? PARENTERAL_PRODUCTS : [...ENTERAL_PRODUCTS, ...PARENTERAL_PRODUCTS];
-  const exact = list.find(p => p.name.toLowerCase() === name.toLowerCase());
-  if (exact) return exact;
-  const partial = list.find(p => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase()));
-  return partial;
+export function findNutritionBag(name: string, route: ArtificialRoute): NutritionBagProduct | undefined {
+  const q = name.trim().toLowerCase();
+  if (!q) return undefined;
+  const list = PRODUCTS_BY_ROUTE[route];
+  return (
+    list.find(p => p.name.toLowerCase() === q) ??
+    list.find(p => p.name.toLowerCase().includes(q) || q.includes(p.name.toLowerCase()))
+  );
 }

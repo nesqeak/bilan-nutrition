@@ -1,26 +1,22 @@
 export type Sex = 'H' | 'F';
+export type YesNo = 'oui' | 'non';
 
 export interface PatientData {
   nom: string;
   age: string;
   sexe: Sex;
-  taille: string; // in cm
-  poidsActuel: string; // in kg
-  poids6Mois: string; // in kg
+  /** cm */
+  taille: string;
+  /** kg */
+  poidsActuel: string;
+  /** kg */
+  poids6Mois: string;
 }
 
-export interface OncologicalTreatment {
-  // Phase du traitement
-  surveillance: boolean;
-  radiotherapie: boolean;
-  chimiotherapie: boolean;
-  immunotherapie: boolean;
+export type TreatmentPhase = 'surveillance' | 'radiotherapie' | 'chimiotherapie' | 'immunotherapie';
+export type Comorbidity = 'cirrhoseAscite' | 'varicesOesophagiennes' | 'tubeDigestifNonFonctionnel';
 
-  // Comorbidités
-  cirrhoseAscite: boolean;
-  varicesOesophagiennes: boolean;
-  tubeDigestifNonFonctionnel: boolean;
-}
+export type OncologicalTreatment = Record<TreatmentPhase | Comorbidity, boolean>;
 
 export type OralSupplementType =
   | 'HP/HC lacté'
@@ -35,43 +31,51 @@ export interface OralSupplementItem {
   countPerDay: number;
 }
 
+export type ArtificialRoute = 'enteral' | 'parenteral';
+
 export interface ArtificialNutritionItem {
   id: string;
   bagName: string;
   volumeMl: number;
+  /** Renseignés lorsqu'une poche du catalogue est sélectionnée. */
   kcalPer100ml?: number;
   proteinPer100ml?: number;
 }
 
 export interface NutritionalSupport {
-  sefi: string; // 0 to 10
-  hasSupport: 'oui' | 'non';
-  
-  // Complémentation Orale
-  hasOralSupplement: 'oui' | 'non';
+  /** Score SEFI, de 0 à 10. */
+  sefi: string;
+  hasSupport: YesNo;
+  hasOralSupplement: YesNo;
   oralSupplements: OralSupplementItem[];
-
-  // Alimentation entérale
-  hasEnteral: 'oui' | 'non';
+  hasEnteral: YesNo;
   enteralItems: ArtificialNutritionItem[];
-
-  // Alimentation parentérale
-  hasParenteral: 'oui' | 'non';
+  hasParenteral: YesNo;
   parenteralItems: ArtificialNutritionItem[];
 }
 
 export type FoodUnit = 'unité' | 'cuillère à café' | 'bol' | 'mL' | 'assiette';
+
+export type FoodSource = 'openfoodfacts' | 'usda' | 'database' | 'estimate';
+
+/** Valeurs nutritionnelles de référence d'un aliment, pour 100 g (ou 100 mL). */
+export interface FoodNutrition {
+  /** Texte recherché ayant produit ces valeurs. */
+  query: string;
+  productName: string;
+  source: FoodSource;
+  kcalPer100g: number;
+  proteinPer100g: number;
+  /** Poids en grammes d'une « unité » de cet aliment. */
+  unitWeight: number;
+}
 
 export interface FoodItemEntry {
   id: string;
   name: string;
   quantity: number | '';
   unit: FoodUnit;
-  calories?: number;
-  proteins?: number;
-  source?: 'openfoodfacts' | 'usda' | 'database' | 'custom';
-  productNameFound?: string;
-  isLoading?: boolean;
+  nutrition?: FoodNutrition;
 }
 
 export type MealType =
@@ -83,13 +87,13 @@ export type MealType =
   | 'collationSoir';
 
 export interface FoodIntakeRecord {
-  petitDejeuner: FoodItemEntry[];
-  collationMatin: FoodItemEntry[];
-  dejeuner: FoodItemEntry[];
-  gouter: FoodItemEntry[];
-  diner: FoodItemEntry[];
-  collationSoir: FoodItemEntry[];
+  meals: Record<MealType, FoodItemEntry[]>;
   isValidated: boolean;
+}
+
+export interface Nutrients {
+  kcal: number;
+  prot: number;
 }
 
 export interface TargetCalculation {
@@ -97,42 +101,42 @@ export interface TargetCalculation {
   maxKcal: number;
   minProt: number;
   maxProt: number;
+  kcalPerKgLabel: string;
+  protPerKgLabel: string;
   formulaKcalDesc: string;
   formulaProtDesc: string;
   isActiveTreatment: boolean;
 }
 
 export interface IntakeCalculation {
-  foodKcal: number;
-  foodProt: number;
-  oralKcal: number;
-  oralProt: number;
-  enteralKcal: number;
-  enteralProt: number;
-  parenteralKcal: number;
-  parenteralProt: number;
-  totalKcal: number;
-  totalProt: number;
+  food: Nutrients;
+  oral: Nutrients;
+  enteral: Nutrients;
+  parenteral: Nutrients;
+  total: Nutrients;
 }
 
 export type DeltaStatus = 'deficit' | 'adapted' | 'excess';
 
 export interface DeltaCalculation {
   status: DeltaStatus;
-  kcalDiff: number; // positive = excess, negative = deficit
-  protDiff: number; // positive = excess, negative = deficit
+  /** Positif = excès, négatif = déficit. */
+  kcalDiff: number;
+  protDiff: number;
   text: string;
 }
 
+export interface SuggestedCno {
+  type: string;
+  count: number;
+  kcalProvided: number;
+  proteinProvided: number;
+}
+
 export interface SfncmRecommendation {
-  type: 'cno' | 'enteral' | 'parenteral' | 'adapted' | 'surveillance' | 'none';
+  type: 'cno' | 'enteral' | 'parenteral' | 'adapted' | 'surveillance';
   title: string;
   details: string[];
-  suggestedCno?: {
-    type: string;
-    count: number;
-    kcalProvided: number;
-    proteinProvided: number;
-  }[];
-  clinicalAlerts?: string[];
+  suggestedCno?: SuggestedCno[];
+  clinicalAlerts: string[];
 }
