@@ -1,0 +1,8 @@
+{
+  "name": "Bilan nutritionnel oncologique",
+  "description": "Application d'évaluation nutritionnelle oncologique, relevé des ingestas quotidiens, calcul des cibles et recommandations selon les référentiels SFNCM.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
