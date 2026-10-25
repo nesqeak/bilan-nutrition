@@ -72,6 +72,7 @@ export function FoodIntakeModal({ foodRecord, onSave, onClose }: FoodIntakeModal
   const items = filledFoodItems(draft);
   const total = sumNutrients(items.map(computeFoodItemNutrients));
   const pendingCount = items.filter(needsNutritionLookup).length;
+  const missingValuesCount = items.filter(item => item.nutrition?.source === 'notFound').length;
 
   return (
     <Modal title="Relevé alimentaire quotidien" onClose={onClose} className="max-w-4xl bg-slate-50">
@@ -107,16 +108,10 @@ export function FoodIntakeModal({ foodRecord, onSave, onClose }: FoodIntakeModal
             <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
             <p>
               <span className="font-semibold">Recherche nutritionnelle en texte libre : </span>
-              la recherche s'effectue d'abord sur <strong>OpenFoodFacts</strong>, puis sur{' '}
-              <strong>
-                USDA FoodData Central (
-                <a href="https://fdc.nal.usda.gov/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800">
-                  fdc.nal.usda.gov
-                </a>
-                )
-              </strong>{' '}
-              si l'aliment ou ses valeurs n'y sont pas disponibles. Un aliment choisi dans la liste de suggestions utilise
-              directement les valeurs de la base locale.
+              les valeurs sont recherchées sur <strong>OpenFoodFacts</strong>. Si l'aliment n'y figure pas, un lien
+              ouvre une <strong>recherche Google</strong> et les calories et protéines pour 100 g sont à saisir
+              sur la ligne. Un aliment choisi dans la liste de suggestions utilise directement les valeurs de la base
+              locale.
             </p>
           </div>
 
@@ -181,6 +176,11 @@ export function FoodIntakeModal({ foodRecord, onSave, onClose }: FoodIntakeModal
           <div className="text-xs text-slate-500 text-center sm:text-left">
             <span className="font-semibold text-slate-700">{items.length}</span> aliment(s) renseigné(s) • Total :{' '}
             <NutrientTotals {...total} />
+            {missingValuesCount > 0 && (
+              <span className="block text-amber-700 font-semibold mt-0.5">
+                {missingValuesCount} aliment(s) sans valeurs, non comptés : à compléter après recherche Google
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button

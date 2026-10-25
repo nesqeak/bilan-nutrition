@@ -56,7 +56,8 @@ export interface NutritionalSupport {
 
 export type FoodUnit = 'unité' | 'cuillère à café' | 'bol' | 'mL' | 'assiette';
 
-export type FoodSource = 'openfoodfacts' | 'usda' | 'database' | 'estimate';
+/** notFound : absent d'OpenFoodFacts, valeurs à saisir (manual) après recherche Google. */
+export type FoodSource = 'openfoodfacts' | 'database' | 'manual' | 'notFound';
 
 /** Valeurs nutritionnelles de référence d'un aliment, pour 100 g (ou 100 mL). */
 export interface FoodNutrition {
