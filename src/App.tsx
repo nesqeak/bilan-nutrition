@@ -125,7 +125,7 @@ export default function App() {
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>
               Confidentialité médicale : les données du patient restent dans votre navigateur et ne sont ni envoyées ni
-              enregistrées sur un serveur. Seuls les noms d'aliments saisis sont envoyés à OpenFoodFacts / USDA.
+              enregistrées sur un serveur. Seuls les noms d'aliments saisis sont envoyés à OpenFoodFacts.
             </span>
           </div>
         </footer>

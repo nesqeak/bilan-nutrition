@@ -23,9 +23,6 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun run build
-        env:
-          # Facultatif : clé USDA FoodData Central (secret du dépôt), sinon DEMO_KEY.
-          VITE_USDA_API_KEY: ${{ secrets.VITE_USDA_API_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
